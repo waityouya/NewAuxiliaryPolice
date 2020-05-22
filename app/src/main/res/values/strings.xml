@@ -8,6 +8,9 @@
     <string name="password">密码</string>
     <string name="password_again">再次输入</string>
     <string name="name">姓名</string>
+    <string name="audit_type">审核状态：</string>
+    <string name="audit_name">审核人：</string>
+    <string name="audit_reason">审核理由：</string>
     <string name="name1">姓名:</string>
     <string name="gender">性别</string>
     <string name="nationality">国籍(区域)</string>
@@ -34,10 +37,12 @@
     <string name="default_native_place">北京市</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="search_hint">输入姓名或身份证号查询</string>
+    <string name="search_hint">姓名/身份证号/车牌号</string>
     <string name="empty_h1">暂时没有数据</string>
     <string name="empty_h2">（如果是查询无数据，请尝试点击搜索图标）</string>
     <string name="empty_h3">（如果是当前无数据，请尝试下拉刷新数据）</string>
-    <string name="tag_image">添加违法图片(最多九张)</string>
+    <string name="tag_image">违法图片</string>
+    <string name="tag_illegal">违法信息</string>
+    <string name="tag_audit">审核信息</string>
     <string name="tag_history">违法历史如下：</string>
 </resources>

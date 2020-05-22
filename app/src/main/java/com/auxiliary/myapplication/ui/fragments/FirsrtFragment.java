@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.auxiliary.myapplication.adapter.FirstFunctionAdapter;
 import com.auxiliary.myapplication.model.UserMenu;
@@ -42,9 +43,8 @@ public class FirsrtFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private RecyclerView recyclerView;
-    private ArrayList<UserMenu> list;
-    private FirstFunctionAdapter adapter;
+
+    private RelativeLayout mRelativeLayout;
 
     public FirsrtFragment() {
         // Required empty public constructor
@@ -94,44 +94,53 @@ public class FirsrtFragment extends Fragment {
         }
     }
 
-    private void initView(View view){
-        recyclerView = view.findViewById(R.id.rl_function);
-        list = new ArrayList<>();
-        UserMenu userMenu1 = new UserMenu(R.mipmap.up,"录入");
-        UserMenu userMenu2 = new UserMenu(R.mipmap.find,"查找");
-        UserMenu userMenu3 = new UserMenu(R.mipmap.shenhe,"审核");
-        list.add(userMenu1);
-        list.add(userMenu2);
-        list.add(userMenu3);
-         adapter = new FirstFunctionAdapter(list);
-        GridLayoutManager layoutManager = new GridLayoutManager(MyApplication.getContext(),3);
-        recyclerView.setLayoutManager(layoutManager);
-
-        recyclerView.setAdapter(adapter);
+    private void initView(View view) {
+        mRelativeLayout = view.findViewById(R.id.add);
+//        recyclerView = view.findViewById(R.id.rl_function);
+//        list = new ArrayList<>();
+//        UserMenu userMenu1 = new UserMenu(R.mipmap.up,"录入");
+//        UserMenu userMenu2 = new UserMenu(R.mipmap.find,"查找");
+//        UserMenu userMenu3 = new UserMenu(R.mipmap.shenhe,"审核");
+//        list.add(userMenu1);
+//        list.add(userMenu2);
+//        list.add(userMenu3);
+//         adapter = new FirstFunctionAdapter(list);
+//        GridLayoutManager layoutManager = new GridLayoutManager(MyApplication.getContext(),3);
+//        recyclerView.setLayoutManager(layoutManager);
+//
+//        recyclerView.setAdapter(adapter);
 
     }
 
-    private void setmListener(){
-        adapter.setItemClickListener(new OnRecyclerViewClickListener() {
+    private void setmListener() {
+        mRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClickListener(View view) {
-                int position = recyclerView.getChildAdapterPosition(view);
-                switch (position){
-                    case 0:
-                        Intent intent = new Intent(MyApplication.getContext(), UpActivity.class);
-                        startActivity(intent);
-                        break;
-                    case 1:
-                         intent = new Intent(MyApplication.getContext(), FindActivity.class);
-                        startActivity(intent);
-                        break;
-                    case 2:
-                        break;
-                }
+            public void onClick(View v) {
+                Intent intent = new Intent(MyApplication.getContext(), UpActivity.class);
+                startActivity(intent);
             }
         });
+//        adapter.setItemClickListener(new OnRecyclerViewClickListener() {
+//            @Override
+//            public void onItemClickListener(View view) {
+//                int position = recyclerView.getChildAdapterPosition(view);
+//                switch (position){
+//                    case 0:
+//                        Intent intent = new Intent(MyApplication.getContext(), UpActivity.class);
+//                        startActivity(intent);
+//                        break;
+//                    case 1:
+//                         intent = new Intent(MyApplication.getContext(), FindActivity.class);
+//                        startActivity(intent);
+//                        break;
+//                    case 2:
+//                        break;
+//                }
+//            }
+//        });
 
     }
+
 
 
 

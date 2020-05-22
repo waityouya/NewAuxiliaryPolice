@@ -20,7 +20,10 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -33,8 +36,10 @@ import com.auxiliary.myapplication.model.UpData;
 import com.auxiliary.myapplication.util.BitmapUtil;
 import com.auxiliary.myapplication.util.Contract;
 import com.auxiliary.myapplication.util.DataFileUtil;
+import com.auxiliary.myapplication.util.GetPhotoUtil;
 import com.auxiliary.myapplication.util.GlobalHandler;
 import com.auxiliary.myapplication.util.JsonUtils;
+import com.auxiliary.myapplication.util.KeyboardUtil;
 import com.auxiliary.myapplication.util.LoadingDailogUtil;
 import com.auxiliary.myapplication.util.LogUtil;
 import com.auxiliary.myapplication.util.MyApplication;
@@ -54,6 +59,8 @@ import com.example.myapplication.R;
 import com.flyco.animation.BounceEnter.BounceTopEnter;
 import com.flyco.animation.SlideExit.SlideBottomExit;
 import com.flyco.dialog.listener.OnBtnClickL;
+import com.flyco.dialog.listener.OnOperItemClickL;
+import com.flyco.dialog.widget.ActionSheetDialog;
 import com.flyco.dialog.widget.NormalDialog;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.gson.Gson;
@@ -125,7 +132,8 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
     private int imageCount = 0;
     private  List<String> images = new LinkedList<>();
     private List<Uri> Added = new LinkedList<>();
-
+    private ImageView nfc;
+    private KeyboardUtil keyboardUtil;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,6 +166,7 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
         textViewNationality = findViewById(R.id.tv_nationality);
         editTextIllegalPlace = findViewById(R.id.et_illegal_palce);
         editTextCarNumber = findViewById(R.id.et_car_number);
+        nfc = findViewById(R.id.iv_nfc);
         textViewHistory = findViewById(R.id.tag_history);
         v14 = findViewById(R.id.v14);
         parent = findViewById(R.id.ll_parent);
@@ -165,7 +174,7 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
         editTextPunishmentMoney.setVisibility(View.GONE);
         mHandler = GlobalHandler.getInstance();
         mHandler.setHandleMsgListener(this);
-        title.setText("录入");
+        title.setText("违法信息采集");
         mPicker.init(this);
         CityConfig cityConfig = new CityConfig.Builder().build();
         mPicker.setConfig(cityConfig);
@@ -200,7 +209,7 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
             }
         });
 
-
+        keyboardUtil = new KeyboardUtil(buttonUp,UpActivity.this, editTextCarNumber);
     }
 
     private void setmListener(){
@@ -208,7 +217,8 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
         multiPictureView.setAddClickCallback(new MultiPictureView.AddClickCallback() {
             @Override
             public void onAddClick(View view) {
-                addImage();
+                SelectDialogNoTitle();
+
 
             }
 
@@ -217,8 +227,28 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
         multiPictureView.setDeleteClickCallback(new MultiPictureView.DeleteClickCallback() {
             @Override
             public void onDeleted(@NotNull View view, int i) {
+                multiPictureView.removeItem(i);
                 images.remove(i);
                 Added.remove(i);
+            }
+        });
+
+        nfc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UpActivity.this,NfcActivity.class);
+                startActivityForResult(intent,168);
+
+            }
+        });
+
+        editTextCarNumber.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                keyboardUtil.hideSoftInputMethod();
+                keyboardUtil.showKeyboard();
+                buttonUp.setVisibility(View.GONE);
+                return false;
             }
         });
 
@@ -476,6 +506,48 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
 
             }
             LoadingDailogUtil.cancelLoadingDailog();
+        }
+        if(requestCode == 168 ){
+
+            textViewsex.setText(data.getStringExtra("sex"));
+            editTextName.setText(data.getStringExtra("name"));
+            editTextIdCard.setText(data.getStringExtra("idNumber"));
+            textViewValidityTime.setText(data.getStringExtra("validTime"));
+        }
+        if(requestCode == GetPhotoUtil.TAKEONCAMERA ){
+            LogUtil.d("获取多张图片回调");
+            if(GetPhotoUtil.getTakePhoto(UpActivity.this) != null){
+                multiPictureView.addItem(GetPhotoUtil.getTakePhoto(UpActivity.this));
+                for (Uri uri:multiPictureView.getList()
+                ) {
+                    int flag = 0;
+                    for (Uri uri1:Added
+                    ) {
+                        if(uri == uri1){
+                            flag = 1;
+                        }
+                    }
+                    if(flag == 0){
+                        //获取路径
+                        String path = BitmapUtil.getRealFilePath(MyApplication.getContext(),uri);
+                        //获取压缩后的路径
+                        String pathNew = BitmapUtil.compressImage(path);
+                        //转Bitmap
+                        Bitmap bitmap = BitmapUtil.getSmallBitmap(pathNew);
+                        String base64 = BitmapUtil.bitmapTobase64NONseal(bitmap);
+                        //转把base4并异或加密
+                        String image = BitmapUtil.imageEncrypt(base64);
+                        images.add(image);
+                        Added.add(uri);
+                    }
+
+
+                }
+
+            }else {
+                ToastUtil.showShortToast("获取拍摄图片失败");
+            }
+
         }
     }
 
@@ -762,6 +834,24 @@ public class UpActivity extends AppCompatActivity implements OnDateSetListener, 
 //                    }
 //                });
 
+    }
+
+    private void SelectDialogNoTitle() {
+        final String[] stringItems = {"拍摄", "从相册中选择"};
+        final ActionSheetDialog dialog = new ActionSheetDialog(UpActivity.this, stringItems, null);
+        dialog.isTitleShow(false).show();
+
+        dialog.setOnOperItemClickL(new OnOperItemClickL() {
+            @Override
+            public void onOperItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 1){
+                    addImage();
+                }else if(position == 0){
+                    GetPhotoUtil.takeOnCamera(UpActivity.this);
+                }
+                dialog.dismiss();
+            }
+        });
     }
 
     private void getDataBySearch(String query,String userId,String token){

@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements GlobalHandler.Han
 
                     try {
                         String publicEncryptJson = RSAUtils.publicEncrypt(loginJson,RSAUtils.getPublicKey(RSAUtils.SERVER_PUBLIC_KEY));
-                        okHttpUtils.postInfo(Contract.SERVER_ADDRESS+"PoliceLoginServlet",publicEncryptJson);
+                        okHttpUtils.postInfo(Contract.SERVER_ADDRESS+"AuxiliaryLogin",publicEncryptJson);
 
                     }catch (Exception e){
                         e.printStackTrace();

@@ -7,6 +7,11 @@ public class Page extends UserToken{
         this.page = page;
 
     }
+
+    public Page(String userId,String token){
+        super(userId, token);
+
+    }
     public int getPage() {
         return page;
     }

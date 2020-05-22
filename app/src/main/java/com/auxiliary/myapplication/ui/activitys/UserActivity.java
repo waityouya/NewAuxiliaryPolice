@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.auxiliary.myapplication.ui.fragments.FindFragment;
 import com.baidu.ocr.sdk.OCR;
 import com.baidu.ocr.sdk.OnResultListener;
 import com.baidu.ocr.sdk.exception.OCRError;
@@ -55,6 +56,7 @@ public class UserActivity extends AppCompatActivity implements GlobalHandler.Han
 //    private Fragment upFragment;
     private Fragment firstFragment;
     private Fragment myFragment;
+    private Fragment findFragment;
     private static  UserActivity userActivity;
     FragmentTransaction transaction;
     private String [] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -89,7 +91,7 @@ public class UserActivity extends AppCompatActivity implements GlobalHandler.Han
             String tokenJson = JsonUtils.conversionJsonString(userToken);
             try {
                 String publicEncryptJson = RSAUtils.publicEncrypt(tokenJson,RSAUtils.getPublicKey(RSAUtils.SERVER_PUBLIC_KEY));
-                okHttpUtils.postInfo(Contract.SERVER_ADDRESS+"CheckTokenServlet",publicEncryptJson);
+                okHttpUtils.postInfo(Contract.SERVER_ADDRESS+"CheckAuxiliaryToken",publicEncryptJson);
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -135,12 +137,14 @@ public class UserActivity extends AppCompatActivity implements GlobalHandler.Han
     private void initView(){
         AHBottomNavigation bottomNavigation = findViewById(R.id.bottom_navigation);
 
-        AHBottomNavigationItem item1 = new AHBottomNavigationItem("首页",R.drawable.frist);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem("我的",R.drawable.user);
+        AHBottomNavigationItem item1 = new AHBottomNavigationItem("违法采集",R.drawable.caiji);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem("查找",R.drawable.chaz);
+        AHBottomNavigationItem item3 = new AHBottomNavigationItem("我的",R.drawable.user);
 
 
         bottomNavigation.addItem(item1);
         bottomNavigation.addItem(item2);
+        bottomNavigation.addItem(item3);
 
         bottomNavigation.setAccentColor(Color.parseColor("#6184FF"));
         bottomNavigation.setDefaultBackgroundColor(Color.WHITE);
@@ -172,6 +176,14 @@ public class UserActivity extends AppCompatActivity implements GlobalHandler.Han
                         }
                         break;
                     case 1:
+                        if(findFragment == null){
+                            findFragment = FindFragment.newInstance("1","2");
+                            transaction.add(R.id.content,findFragment);
+                        }else {
+                            transaction.show(findFragment);
+                        }
+                        break;
+                    case 2:
                         if(myFragment == null){
                             myFragment = MyFragment.newInstance("1","2");
                             transaction.add(R.id.content,myFragment);
@@ -210,6 +222,9 @@ public class UserActivity extends AppCompatActivity implements GlobalHandler.Han
         }
         if(firstFragment != null){
             fragmentTransaction.hide(firstFragment);
+        }
+        if(findFragment != null){
+            fragmentTransaction.hide(findFragment);
         }
 
     }
